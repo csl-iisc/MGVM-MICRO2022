@@ -1,0 +1,814 @@
+; ModuleID = 'kernel.cl'
+source_filename = "kernel.cl"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-ni:7"
+target triple = "amdgcn-amd-amdhsa"
+
+@gen_hists.warp_hists = internal addrspace(3) global [20 x [128 x i32]] undef, align 4
+
+; Function Attrs: convergent norecurse nounwind
+define protected amdgpu_kernel void @gen_hists(i64 addrspace(1)* nocapture %0, float addrspace(1)* nocapture readonly %1, float addrspace(4)* nocapture readonly %2, i32 %3, i32 %4) local_unnamed_addr #0 !kernel_arg_addr_space !4 !kernel_arg_access_qual !5 !kernel_arg_type !6 !kernel_arg_base_type !7 !kernel_arg_type_qual !8 !kernel_arg_name !9 {
+  %6 = add nsw i32 %3, 1
+  %7 = mul nsw i32 %6, %4
+  %8 = sext i32 %7 to i64
+  %9 = getelementptr inbounds float, float addrspace(1)* %1, i64 %8
+  %10 = tail call i64 @_Z12get_group_idj(i32 0) #4
+  %11 = tail call i64 @_Z12get_local_idj(i32 0) #4
+  %12 = trunc i64 %11 to i32
+  %13 = and i32 %12, 127
+  %14 = icmp ult i32 %12, 2560
+  br i1 %14, label %15, label %18
+
+15:                                               ; preds = %5
+  %16 = lshr i32 %12, 7
+  %17 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %16, i32 %13
+  store i32 0, i32 addrspace(3)* %17, align 4, !tbaa !10
+  br label %18
+
+18:                                               ; preds = %5, %15
+  %19 = add i32 %12, 256
+  %20 = icmp ult i32 %19, 2560
+  br i1 %20, label %409, label %412
+
+21:                                               ; preds = %460
+  %22 = sub i32 %462, %3
+  %23 = mul i32 %22, %4
+  %24 = zext i32 %23 to i64
+  br label %31
+
+25:                                               ; preds = %460
+  %26 = mul i32 %462, %4
+  %27 = zext i32 %26 to i64
+  %28 = getelementptr inbounds float, float addrspace(1)* %1, i64 %27
+  %29 = getelementptr inbounds float, float addrspace(1)* %9, i64 %27
+  %30 = getelementptr inbounds float, float addrspace(1)* %461, i64 %27
+  br label %31
+
+31:                                               ; preds = %25, %21
+  %32 = phi i64 [ %27, %25 ], [ %24, %21 ]
+  %33 = phi float addrspace(1)* [ %30, %25 ], [ %461, %21 ]
+  %34 = phi float addrspace(1)* [ %29, %25 ], [ %9, %21 ]
+  %35 = phi float addrspace(1)* [ %28, %25 ], [ %1, %21 ]
+  %36 = icmp eq i32 %4, 0
+  br i1 %36, label %116, label %37
+
+37:                                               ; preds = %31
+  %38 = getelementptr inbounds float, float addrspace(1)* %461, i64 %32
+  %39 = getelementptr inbounds float, float addrspace(1)* %9, i64 %32
+  %40 = getelementptr inbounds float, float addrspace(1)* %1, i64 %32
+  %41 = lshr i64 %11, 1
+  %42 = trunc i64 %41 to i32
+  %43 = and i32 %42, 2147483647
+  br label %44
+
+44:                                               ; preds = %37, %69
+  %45 = phi i32 [ 0, %37 ], [ %63, %69 ]
+  %46 = phi float [ undef, %37 ], [ %62, %69 ]
+  %47 = phi float [ undef, %37 ], [ %61, %69 ]
+  %48 = phi float [ undef, %37 ], [ %60, %69 ]
+  %49 = add i32 %45, %12
+  %50 = icmp ult i32 %49, %4
+  %51 = zext i32 %49 to i64
+  br i1 %50, label %52, label %59
+
+52:                                               ; preds = %44
+  %53 = getelementptr inbounds float, float addrspace(1)* %38, i64 %51
+  %54 = getelementptr inbounds float, float addrspace(1)* %39, i64 %51
+  %55 = getelementptr inbounds float, float addrspace(1)* %40, i64 %51
+  %56 = load float, float addrspace(1)* %55, align 4, !tbaa !14
+  %57 = load float, float addrspace(1)* %54, align 4, !tbaa !14
+  %58 = load float, float addrspace(1)* %53, align 4, !tbaa !14
+  br label %59
+
+59:                                               ; preds = %44, %52
+  %60 = phi float [ %56, %52 ], [ %48, %44 ]
+  %61 = phi float [ %57, %52 ], [ %47, %44 ]
+  %62 = phi float [ %58, %52 ], [ %46, %44 ]
+  %63 = add i32 %45, 256
+  %64 = xor i1 %50, true
+  br label %65
+
+65:                                               ; preds = %113, %59
+  %66 = phi i32 [ 0, %59 ], [ %114, %113 ]
+  %67 = icmp uge i32 %66, %63
+  %68 = and i1 %463, %67
+  br i1 %68, label %69, label %71
+
+69:                                               ; preds = %65, %113
+  %70 = icmp ult i32 %63, %4
+  br i1 %70, label %44, label %116
+
+71:                                               ; preds = %65
+  %72 = zext i32 %66 to i64
+  %73 = getelementptr inbounds float, float addrspace(1)* %35, i64 %72
+  %74 = load float, float addrspace(1)* %73, align 4, !tbaa !14
+  %75 = getelementptr inbounds float, float addrspace(1)* %34, i64 %72
+  %76 = load float, float addrspace(1)* %75, align 4, !tbaa !14
+  %77 = fmul float %61, %76
+  %78 = tail call float @llvm.fmuladd.f32(float %74, float %60, float %77)
+  %79 = getelementptr inbounds float, float addrspace(1)* %33, i64 %72
+  %80 = load float, float addrspace(1)* %79, align 4, !tbaa !14
+  %81 = tail call float @llvm.fmuladd.f32(float %80, float %62, float %78)
+  br label %82
+
+82:                                               ; preds = %71, %82
+  %83 = phi i32 [ 20, %71 ], [ %92, %82 ]
+  %84 = phi i32 [ 0, %71 ], [ %91, %82 ]
+  %85 = add i32 %83, %84
+  %86 = lshr i32 %85, 1
+  %87 = zext i32 %86 to i64
+  %88 = getelementptr inbounds float, float addrspace(4)* %2, i64 %87
+  %89 = load float, float addrspace(4)* %88, align 4, !tbaa !14
+  %90 = fcmp ult float %81, %89
+  %91 = select i1 %90, i32 %86, i32 %84
+  %92 = select i1 %90, i32 %83, i32 %86
+  %93 = add i32 %91, 1
+  %94 = icmp ugt i32 %92, %93
+  br i1 %94, label %82, label %95
+
+95:                                               ; preds = %82
+  %96 = add i32 %92, -1
+  %97 = zext i32 %91 to i64
+  %98 = getelementptr inbounds float, float addrspace(4)* %2, i64 %97
+  %99 = load float, float addrspace(4)* %98, align 4, !tbaa !14
+  %100 = fcmp olt float %81, %99
+  br i1 %100, label %101, label %113
+
+101:                                              ; preds = %95
+  %102 = zext i32 %92 to i64
+  %103 = getelementptr inbounds float, float addrspace(4)* %2, i64 %102
+  %104 = load float, float addrspace(4)* %103, align 4, !tbaa !14
+  %105 = fcmp ult float %81, %104
+  br i1 %105, label %113, label %106
+
+106:                                              ; preds = %101
+  %107 = icmp ule i32 %49, %66
+  %108 = and i1 %463, %107
+  %109 = or i1 %108, %64
+  br i1 %109, label %113, label %110
+
+110:                                              ; preds = %106
+  %111 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %96, i32 %43
+  %112 = tail call i32 @_Z8atom_incPU3AS3Vj(i32 addrspace(3)* %111) #5
+  br label %113
+
+113:                                              ; preds = %106, %101, %110, %95
+  %114 = add nuw i32 %66, 1
+  %115 = icmp eq i32 %114, %4
+  br i1 %115, label %69, label %65
+
+116:                                              ; preds = %69, %31
+  %117 = and i32 %12, 63
+  %118 = lshr i32 %12, 6
+  %119 = or i32 %117, 64
+  tail call void @_Z7barrierj(i32 3) #5
+  %120 = icmp ult i32 %12, 1280
+  %121 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %117
+  br i1 %120, label %122, label %137
+
+122:                                              ; preds = %116
+  %123 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %119
+  %124 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %125 = load i32, i32 addrspace(3)* %123, align 4, !tbaa !10
+  %126 = add i32 %125, %124
+  store i32 %126, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %137
+
+127:                                              ; preds = %407
+  %128 = mul i64 %10, 20
+  %129 = and i64 %128, 4294967292
+  %130 = getelementptr inbounds i64, i64 addrspace(1)* %0, i64 %129
+  %131 = and i64 %11, 4294967295
+  %132 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %12, i32 0
+  %133 = load i32, i32 addrspace(3)* %132, align 4, !tbaa !10
+  %134 = zext i32 %133 to i64
+  %135 = getelementptr inbounds i64, i64 addrspace(1)* %130, i64 %131
+  store i64 %134, i64 addrspace(1)* %135, align 8, !tbaa !16
+  br label %136
+
+136:                                              ; preds = %127, %407
+  ret void
+
+137:                                              ; preds = %122, %116
+  tail call void @_Z7barrierj(i32 3) #5
+  %138 = add nuw nsw i32 %118, 4
+  %139 = icmp ult i32 %12, 1024
+  %140 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %117
+  br i1 %139, label %141, label %146
+
+141:                                              ; preds = %137
+  %142 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %119
+  %143 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %144 = load i32, i32 addrspace(3)* %142, align 4, !tbaa !10
+  %145 = add i32 %144, %143
+  store i32 %145, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %146
+
+146:                                              ; preds = %137, %141
+  tail call void @_Z7barrierj(i32 3) #5
+  %147 = add nuw nsw i32 %118, 8
+  %148 = icmp ult i32 %12, 768
+  %149 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %117
+  br i1 %148, label %150, label %155
+
+150:                                              ; preds = %146
+  %151 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %119
+  %152 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %153 = load i32, i32 addrspace(3)* %151, align 4, !tbaa !10
+  %154 = add i32 %153, %152
+  store i32 %154, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %155
+
+155:                                              ; preds = %146, %150
+  tail call void @_Z7barrierj(i32 3) #5
+  %156 = add nuw nsw i32 %118, 12
+  %157 = icmp ult i32 %12, 512
+  %158 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %117
+  br i1 %157, label %159, label %164
+
+159:                                              ; preds = %155
+  %160 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %119
+  %161 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %162 = load i32, i32 addrspace(3)* %160, align 4, !tbaa !10
+  %163 = add i32 %162, %161
+  store i32 %163, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %164
+
+164:                                              ; preds = %155, %159
+  tail call void @_Z7barrierj(i32 3) #5
+  %165 = add nuw nsw i32 %118, 16
+  %166 = icmp ult i32 %12, 256
+  %167 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %117
+  br i1 %166, label %168, label %173
+
+168:                                              ; preds = %164
+  %169 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %119
+  %170 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %171 = load i32, i32 addrspace(3)* %169, align 4, !tbaa !10
+  %172 = add i32 %171, %170
+  store i32 %172, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %173
+
+173:                                              ; preds = %168, %164
+  %174 = icmp ult i32 %117, 32
+  %175 = add nuw nsw i32 %117, 32
+  tail call void @_Z7barrierj(i32 3) #5
+  %176 = and i1 %174, %120
+  br i1 %176, label %177, label %182
+
+177:                                              ; preds = %173
+  %178 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %175
+  %179 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %180 = load i32, i32 addrspace(3)* %178, align 4, !tbaa !10
+  %181 = add i32 %180, %179
+  store i32 %181, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %182
+
+182:                                              ; preds = %173, %177
+  %183 = phi i1 [ true, %177 ], [ %174, %173 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %184 = and i1 %183, %139
+  br i1 %184, label %185, label %190
+
+185:                                              ; preds = %182
+  %186 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %175
+  %187 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %188 = load i32, i32 addrspace(3)* %186, align 4, !tbaa !10
+  %189 = add i32 %188, %187
+  store i32 %189, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %190
+
+190:                                              ; preds = %182, %185
+  tail call void @_Z7barrierj(i32 3) #5
+  %191 = and i1 %174, %148
+  br i1 %191, label %192, label %197
+
+192:                                              ; preds = %190
+  %193 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %175
+  %194 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %195 = load i32, i32 addrspace(3)* %193, align 4, !tbaa !10
+  %196 = add i32 %195, %194
+  store i32 %196, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %197
+
+197:                                              ; preds = %190, %192
+  %198 = phi i1 [ true, %192 ], [ %174, %190 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %199 = and i1 %198, %157
+  br i1 %199, label %200, label %205
+
+200:                                              ; preds = %197
+  %201 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %175
+  %202 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %203 = load i32, i32 addrspace(3)* %201, align 4, !tbaa !10
+  %204 = add i32 %203, %202
+  store i32 %204, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %205
+
+205:                                              ; preds = %197, %200
+  tail call void @_Z7barrierj(i32 3) #5
+  %206 = and i1 %174, %166
+  br i1 %206, label %207, label %212
+
+207:                                              ; preds = %205
+  %208 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %175
+  %209 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %210 = load i32, i32 addrspace(3)* %208, align 4, !tbaa !10
+  %211 = add i32 %210, %209
+  store i32 %211, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %212
+
+212:                                              ; preds = %205, %207
+  %213 = icmp ult i32 %117, 16
+  %214 = add nuw nsw i32 %117, 16
+  tail call void @_Z7barrierj(i32 3) #5
+  %215 = and i1 %213, %120
+  br i1 %215, label %216, label %221
+
+216:                                              ; preds = %212
+  %217 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %214
+  %218 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %219 = load i32, i32 addrspace(3)* %217, align 4, !tbaa !10
+  %220 = add i32 %219, %218
+  store i32 %220, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %221
+
+221:                                              ; preds = %212, %216
+  %222 = phi i1 [ true, %216 ], [ %213, %212 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %223 = and i1 %222, %139
+  br i1 %223, label %224, label %229
+
+224:                                              ; preds = %221
+  %225 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %214
+  %226 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %227 = load i32, i32 addrspace(3)* %225, align 4, !tbaa !10
+  %228 = add i32 %227, %226
+  store i32 %228, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %229
+
+229:                                              ; preds = %221, %224
+  tail call void @_Z7barrierj(i32 3) #5
+  %230 = and i1 %213, %148
+  br i1 %230, label %231, label %236
+
+231:                                              ; preds = %229
+  %232 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %214
+  %233 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %234 = load i32, i32 addrspace(3)* %232, align 4, !tbaa !10
+  %235 = add i32 %234, %233
+  store i32 %235, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %236
+
+236:                                              ; preds = %229, %231
+  %237 = phi i1 [ true, %231 ], [ %213, %229 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %238 = and i1 %237, %157
+  br i1 %238, label %239, label %244
+
+239:                                              ; preds = %236
+  %240 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %214
+  %241 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %242 = load i32, i32 addrspace(3)* %240, align 4, !tbaa !10
+  %243 = add i32 %242, %241
+  store i32 %243, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %244
+
+244:                                              ; preds = %236, %239
+  tail call void @_Z7barrierj(i32 3) #5
+  %245 = and i1 %213, %166
+  br i1 %245, label %246, label %251
+
+246:                                              ; preds = %244
+  %247 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %214
+  %248 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %249 = load i32, i32 addrspace(3)* %247, align 4, !tbaa !10
+  %250 = add i32 %249, %248
+  store i32 %250, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %251
+
+251:                                              ; preds = %244, %246
+  %252 = icmp ult i32 %117, 8
+  %253 = add nuw nsw i32 %117, 8
+  tail call void @_Z7barrierj(i32 3) #5
+  %254 = and i1 %252, %120
+  br i1 %254, label %255, label %260
+
+255:                                              ; preds = %251
+  %256 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %253
+  %257 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %258 = load i32, i32 addrspace(3)* %256, align 4, !tbaa !10
+  %259 = add i32 %258, %257
+  store i32 %259, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %260
+
+260:                                              ; preds = %251, %255
+  %261 = phi i1 [ true, %255 ], [ %252, %251 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %262 = and i1 %261, %139
+  br i1 %262, label %263, label %268
+
+263:                                              ; preds = %260
+  %264 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %253
+  %265 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %266 = load i32, i32 addrspace(3)* %264, align 4, !tbaa !10
+  %267 = add i32 %266, %265
+  store i32 %267, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %268
+
+268:                                              ; preds = %260, %263
+  tail call void @_Z7barrierj(i32 3) #5
+  %269 = and i1 %252, %148
+  br i1 %269, label %270, label %275
+
+270:                                              ; preds = %268
+  %271 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %253
+  %272 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %273 = load i32, i32 addrspace(3)* %271, align 4, !tbaa !10
+  %274 = add i32 %273, %272
+  store i32 %274, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %275
+
+275:                                              ; preds = %268, %270
+  %276 = phi i1 [ true, %270 ], [ %252, %268 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %277 = and i1 %276, %157
+  br i1 %277, label %278, label %283
+
+278:                                              ; preds = %275
+  %279 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %253
+  %280 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %281 = load i32, i32 addrspace(3)* %279, align 4, !tbaa !10
+  %282 = add i32 %281, %280
+  store i32 %282, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %283
+
+283:                                              ; preds = %275, %278
+  tail call void @_Z7barrierj(i32 3) #5
+  %284 = and i1 %252, %166
+  br i1 %284, label %285, label %290
+
+285:                                              ; preds = %283
+  %286 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %253
+  %287 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %288 = load i32, i32 addrspace(3)* %286, align 4, !tbaa !10
+  %289 = add i32 %288, %287
+  store i32 %289, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %290
+
+290:                                              ; preds = %283, %285
+  %291 = icmp ult i32 %117, 4
+  %292 = add nuw nsw i32 %117, 4
+  tail call void @_Z7barrierj(i32 3) #5
+  %293 = and i1 %291, %120
+  br i1 %293, label %294, label %299
+
+294:                                              ; preds = %290
+  %295 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %292
+  %296 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %297 = load i32, i32 addrspace(3)* %295, align 4, !tbaa !10
+  %298 = add i32 %297, %296
+  store i32 %298, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %299
+
+299:                                              ; preds = %290, %294
+  %300 = phi i1 [ true, %294 ], [ %291, %290 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %301 = and i1 %300, %139
+  br i1 %301, label %302, label %307
+
+302:                                              ; preds = %299
+  %303 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %292
+  %304 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %305 = load i32, i32 addrspace(3)* %303, align 4, !tbaa !10
+  %306 = add i32 %305, %304
+  store i32 %306, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %307
+
+307:                                              ; preds = %299, %302
+  tail call void @_Z7barrierj(i32 3) #5
+  %308 = and i1 %291, %148
+  br i1 %308, label %309, label %314
+
+309:                                              ; preds = %307
+  %310 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %292
+  %311 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %312 = load i32, i32 addrspace(3)* %310, align 4, !tbaa !10
+  %313 = add i32 %312, %311
+  store i32 %313, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %314
+
+314:                                              ; preds = %307, %309
+  %315 = phi i1 [ true, %309 ], [ %291, %307 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %316 = and i1 %315, %157
+  br i1 %316, label %317, label %322
+
+317:                                              ; preds = %314
+  %318 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %292
+  %319 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %320 = load i32, i32 addrspace(3)* %318, align 4, !tbaa !10
+  %321 = add i32 %320, %319
+  store i32 %321, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %322
+
+322:                                              ; preds = %314, %317
+  tail call void @_Z7barrierj(i32 3) #5
+  %323 = and i1 %291, %166
+  br i1 %323, label %324, label %329
+
+324:                                              ; preds = %322
+  %325 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %292
+  %326 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %327 = load i32, i32 addrspace(3)* %325, align 4, !tbaa !10
+  %328 = add i32 %327, %326
+  store i32 %328, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %329
+
+329:                                              ; preds = %322, %324
+  %330 = icmp ult i32 %117, 2
+  %331 = add nuw nsw i32 %117, 2
+  tail call void @_Z7barrierj(i32 3) #5
+  %332 = and i1 %330, %120
+  br i1 %332, label %333, label %338
+
+333:                                              ; preds = %329
+  %334 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %331
+  %335 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %336 = load i32, i32 addrspace(3)* %334, align 4, !tbaa !10
+  %337 = add i32 %336, %335
+  store i32 %337, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %338
+
+338:                                              ; preds = %329, %333
+  %339 = phi i1 [ true, %333 ], [ %330, %329 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %340 = and i1 %339, %139
+  br i1 %340, label %341, label %346
+
+341:                                              ; preds = %338
+  %342 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %331
+  %343 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %344 = load i32, i32 addrspace(3)* %342, align 4, !tbaa !10
+  %345 = add i32 %344, %343
+  store i32 %345, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %346
+
+346:                                              ; preds = %338, %341
+  tail call void @_Z7barrierj(i32 3) #5
+  %347 = and i1 %330, %148
+  br i1 %347, label %348, label %353
+
+348:                                              ; preds = %346
+  %349 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %331
+  %350 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %351 = load i32, i32 addrspace(3)* %349, align 4, !tbaa !10
+  %352 = add i32 %351, %350
+  store i32 %352, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %353
+
+353:                                              ; preds = %346, %348
+  %354 = phi i1 [ true, %348 ], [ %330, %346 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %355 = and i1 %354, %157
+  br i1 %355, label %356, label %361
+
+356:                                              ; preds = %353
+  %357 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %331
+  %358 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %359 = load i32, i32 addrspace(3)* %357, align 4, !tbaa !10
+  %360 = add i32 %359, %358
+  store i32 %360, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %361
+
+361:                                              ; preds = %353, %356
+  tail call void @_Z7barrierj(i32 3) #5
+  %362 = and i1 %330, %166
+  br i1 %362, label %363, label %368
+
+363:                                              ; preds = %361
+  %364 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %331
+  %365 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %366 = load i32, i32 addrspace(3)* %364, align 4, !tbaa !10
+  %367 = add i32 %366, %365
+  store i32 %367, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %368
+
+368:                                              ; preds = %361, %363
+  %369 = icmp eq i32 %117, 0
+  %370 = add nuw nsw i32 %117, 1
+  tail call void @_Z7barrierj(i32 3) #5
+  %371 = and i1 %369, %120
+  br i1 %371, label %372, label %377
+
+372:                                              ; preds = %368
+  %373 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %118, i32 %370
+  %374 = load i32, i32 addrspace(3)* %121, align 4, !tbaa !10
+  %375 = load i32, i32 addrspace(3)* %373, align 4, !tbaa !10
+  %376 = add i32 %375, %374
+  store i32 %376, i32 addrspace(3)* %121, align 4, !tbaa !10
+  br label %377
+
+377:                                              ; preds = %368, %372
+  %378 = phi i1 [ true, %372 ], [ %369, %368 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %379 = and i1 %378, %139
+  br i1 %379, label %380, label %385
+
+380:                                              ; preds = %377
+  %381 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %138, i32 %370
+  %382 = load i32, i32 addrspace(3)* %140, align 4, !tbaa !10
+  %383 = load i32, i32 addrspace(3)* %381, align 4, !tbaa !10
+  %384 = add i32 %383, %382
+  store i32 %384, i32 addrspace(3)* %140, align 4, !tbaa !10
+  br label %385
+
+385:                                              ; preds = %377, %380
+  tail call void @_Z7barrierj(i32 3) #5
+  %386 = and i1 %369, %148
+  br i1 %386, label %387, label %392
+
+387:                                              ; preds = %385
+  %388 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %147, i32 %370
+  %389 = load i32, i32 addrspace(3)* %149, align 4, !tbaa !10
+  %390 = load i32, i32 addrspace(3)* %388, align 4, !tbaa !10
+  %391 = add i32 %390, %389
+  store i32 %391, i32 addrspace(3)* %149, align 4, !tbaa !10
+  br label %392
+
+392:                                              ; preds = %385, %387
+  %393 = phi i1 [ true, %387 ], [ %369, %385 ]
+  tail call void @_Z7barrierj(i32 3) #5
+  %394 = and i1 %393, %157
+  br i1 %394, label %395, label %400
+
+395:                                              ; preds = %392
+  %396 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %156, i32 %370
+  %397 = load i32, i32 addrspace(3)* %158, align 4, !tbaa !10
+  %398 = load i32, i32 addrspace(3)* %396, align 4, !tbaa !10
+  %399 = add i32 %398, %397
+  store i32 %399, i32 addrspace(3)* %158, align 4, !tbaa !10
+  br label %400
+
+400:                                              ; preds = %392, %395
+  tail call void @_Z7barrierj(i32 3) #5
+  %401 = and i1 %369, %166
+  br i1 %401, label %402, label %407
+
+402:                                              ; preds = %400
+  %403 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %165, i32 %370
+  %404 = load i32, i32 addrspace(3)* %167, align 4, !tbaa !10
+  %405 = load i32, i32 addrspace(3)* %403, align 4, !tbaa !10
+  %406 = add i32 %405, %404
+  store i32 %406, i32 addrspace(3)* %167, align 4, !tbaa !10
+  br label %407
+
+407:                                              ; preds = %400, %402
+  tail call void @_Z7barrierj(i32 3) #5
+  %408 = icmp ult i32 %12, 20
+  br i1 %408, label %127, label %136
+
+409:                                              ; preds = %18
+  %410 = lshr i32 %19, 7
+  %411 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %410, i32 %13
+  store i32 0, i32 addrspace(3)* %411, align 4, !tbaa !10
+  br label %412
+
+412:                                              ; preds = %409, %18
+  %413 = add i32 %12, 512
+  %414 = icmp ult i32 %413, 2560
+  br i1 %414, label %415, label %418
+
+415:                                              ; preds = %412
+  %416 = lshr i32 %413, 7
+  %417 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %416, i32 %13
+  store i32 0, i32 addrspace(3)* %417, align 4, !tbaa !10
+  br label %418
+
+418:                                              ; preds = %415, %412
+  %419 = add i32 %12, 768
+  %420 = icmp ult i32 %419, 2560
+  br i1 %420, label %421, label %424
+
+421:                                              ; preds = %418
+  %422 = lshr i32 %419, 7
+  %423 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %422, i32 %13
+  store i32 0, i32 addrspace(3)* %423, align 4, !tbaa !10
+  br label %424
+
+424:                                              ; preds = %421, %418
+  %425 = add i32 %12, 1024
+  %426 = icmp ult i32 %425, 2560
+  br i1 %426, label %427, label %430
+
+427:                                              ; preds = %424
+  %428 = lshr i32 %425, 7
+  %429 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %428, i32 %13
+  store i32 0, i32 addrspace(3)* %429, align 4, !tbaa !10
+  br label %430
+
+430:                                              ; preds = %427, %424
+  %431 = add i32 %12, 1280
+  %432 = icmp ult i32 %431, 2560
+  br i1 %432, label %433, label %436
+
+433:                                              ; preds = %430
+  %434 = lshr i32 %431, 7
+  %435 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %434, i32 %13
+  store i32 0, i32 addrspace(3)* %435, align 4, !tbaa !10
+  br label %436
+
+436:                                              ; preds = %433, %430
+  %437 = add i32 %12, 1536
+  %438 = icmp ult i32 %437, 2560
+  br i1 %438, label %439, label %442
+
+439:                                              ; preds = %436
+  %440 = lshr i32 %437, 7
+  %441 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %440, i32 %13
+  store i32 0, i32 addrspace(3)* %441, align 4, !tbaa !10
+  br label %442
+
+442:                                              ; preds = %439, %436
+  %443 = add i32 %12, 1792
+  %444 = icmp ult i32 %443, 2560
+  br i1 %444, label %445, label %448
+
+445:                                              ; preds = %442
+  %446 = lshr i32 %443, 7
+  %447 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %446, i32 %13
+  store i32 0, i32 addrspace(3)* %447, align 4, !tbaa !10
+  br label %448
+
+448:                                              ; preds = %445, %442
+  %449 = add i32 %12, 2048
+  %450 = icmp ult i32 %449, 2560
+  br i1 %450, label %451, label %454
+
+451:                                              ; preds = %448
+  %452 = lshr i32 %449, 7
+  %453 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %452, i32 %13
+  store i32 0, i32 addrspace(3)* %453, align 4, !tbaa !10
+  br label %454
+
+454:                                              ; preds = %451, %448
+  %455 = add i32 %12, 2304
+  %456 = icmp ult i32 %455, 2560
+  br i1 %456, label %457, label %460
+
+457:                                              ; preds = %454
+  %458 = lshr i32 %455, 7
+  %459 = getelementptr inbounds [20 x [128 x i32]], [20 x [128 x i32]] addrspace(3)* @gen_hists.warp_hists, i32 0, i32 %458, i32 %13
+  store i32 0, i32 addrspace(3)* %459, align 4, !tbaa !10
+  br label %460
+
+460:                                              ; preds = %457, %454
+  %461 = getelementptr inbounds float, float addrspace(1)* %9, i64 %8
+  %462 = trunc i64 %10 to i32
+  %463 = icmp ugt i32 %6, %462
+  br i1 %463, label %25, label %21
+}
+
+; Function Attrs: convergent nounwind readnone
+declare hidden i64 @_Z12get_group_idj(i32) local_unnamed_addr #1
+
+; Function Attrs: convergent nounwind readnone
+declare hidden i64 @_Z12get_local_idj(i32) local_unnamed_addr #1
+
+; Function Attrs: nounwind readnone speculatable willreturn
+declare float @llvm.fmuladd.f32(float, float, float) #2
+
+; Function Attrs: convergent
+declare hidden i32 @_Z8atom_incPU3AS3Vj(i32 addrspace(3)*) local_unnamed_addr #3
+
+; Function Attrs: convergent
+declare hidden void @_Z7barrierj(i32) local_unnamed_addr #3
+
+attributes #0 = { convergent norecurse nounwind "amdgpu-flat-work-group-size"="1,256" "amdgpu-implicitarg-num-bytes"="56" "correctly-rounded-divide-sqrt-fp-math"="false" "denormal-fp-math-f32"="preserve-sign,preserve-sign" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="gfx803" "target-features"="+16-bit-insts,+ci-insts,+dpp,+flat-address-space,+gfx8-insts,+s-memrealtime,-code-object-v3" "uniform-work-group-size"="true" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { convergent nounwind readnone "correctly-rounded-divide-sqrt-fp-math"="false" "denormal-fp-math-f32"="preserve-sign,preserve-sign" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="gfx803" "target-features"="+16-bit-insts,+ci-insts,+dpp,+flat-address-space,+gfx8-insts,+s-memrealtime,-code-object-v3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { nounwind readnone speculatable willreturn }
+attributes #3 = { convergent "correctly-rounded-divide-sqrt-fp-math"="false" "denormal-fp-math-f32"="preserve-sign,preserve-sign" "disable-tail-calls"="false" "frame-pointer"="none" "less-precise-fpmad"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="gfx803" "target-features"="+16-bit-insts,+ci-insts,+dpp,+flat-address-space,+gfx8-insts,+s-memrealtime,-code-object-v3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { convergent nounwind readnone }
+attributes #5 = { convergent nounwind }
+
+!llvm.module.flags = !{!0, !1}
+!opencl.ocl.version = !{!2}
+!llvm.ident = !{!3}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{i32 7, !"PIC Level", i32 1}
+!2 = !{i32 1, i32 2}
+!3 = !{!"clang version 11.0.0 (/src/external/llvm-project/clang 0383ad1cfb0a8e05b0a020e8632400194628b243)"}
+!4 = !{i32 1, i32 1, i32 2, i32 0, i32 0}
+!5 = !{!"none", !"none", !"none", !"none", !"none"}
+!6 = !{!"hist_t*", !"float*", !"float*", !"int", !"int"}
+!7 = !{!"ulong*", !"float*", !"float*", !"int", !"int"}
+!8 = !{!"", !"", !"const", !"", !""}
+!9 = !{!"histograms", !"all_x_data", !"dev_binb", !"NUM_SETS", !"NUM_ELEMENTS"}
+!10 = !{!11, !11, i64 0}
+!11 = !{!"int", !12, i64 0}
+!12 = !{!"omnipotent char", !13, i64 0}
+!13 = !{!"Simple C/C++ TBAA"}
+!14 = !{!15, !15, i64 0}
+!15 = !{!"float", !12, i64 0}
+!16 = !{!17, !17, i64 0}
+!17 = !{!"long", !12, i64 0}

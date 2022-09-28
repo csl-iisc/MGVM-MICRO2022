@@ -1,0 +1,22 @@
+{
+    "go.useLanguageServer": true,
+    "go.coverOnSave": true,
+    "go.lintTool": "golangci-lint",
+    "go.lintFlags": [
+        "--fast"
+    ],
+    "go.testFlags": [
+        "-ginkgo.skipMeasurements",
+        "-ginkgo.noColor"
+    ],
+    "[go]": {
+        "editor.snippetSuggestions": "none",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "cSpell.words": [
+        "mshr"
+    ],
+}

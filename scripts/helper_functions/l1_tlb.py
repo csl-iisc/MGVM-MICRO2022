@@ -1,0 +1,180 @@
+import re
+from helper_functions.util import *
+import itertools
+import traceback
+
+
+def getL1TlbStats(lines):
+    toReturn = dict()
+    toReturn.update(getL1TlbReqLat(lines))
+    # toReturn.update(getL1TlbMissLat(lines))
+    # toReturn.update(getL1TlbAccessResults(lines))
+    return toReturn
+
+def useAlternateMissLatFormula(latDict):
+    localMissLatSum = latDict['l1-tlb-local-miss-lat']*latDict['l1-tlb-local-miss']
+    remoteMissLatSum = latDict['l1-tlb-remote-miss-lat']*latDict['l1-tlb-remote-miss']
+    tlbMisses = latDict['l1-tlb-local-miss'] + latDict['l1-tlb-remote-miss']
+    return div(localMissLatSum + remoteMissLatSum, tlbMisses)
+
+def getL1TlbMissLat(lines):
+    raise Exception("Don't call this function, dk what it does!")
+    latDict = dict()
+    regex = re.compile("^.*?L1.TLB.*?$", re.MULTILINE)
+    for line in regex.findall(lines):
+        if 'remote' in line or 'local' in line or \
+        'down_req_average_latency' in line or 'tlb-miss' in line:
+            splitLine = line.split(',')
+            componentName = splitLine[1].strip()
+            metric = splitLine[2].strip()
+            val = float(splitLine[-1].strip())
+            addToDict(latDict, componentName, metric, val)
+            # print line
+    toReturn = {'l1-tlb-miss-lat': 0.0,
+                'l1-tlb-local-miss-lat': 0.0,
+                'l1-tlb-remote-miss-lat': 0.0,
+                'l1-tlb-local-miss': 0,
+                'l1-tlb-remote-miss': 0}
+    totl1TlbMisses = 0
+    l1TlbMissLatSum = 0.0
+    for component in latDict:
+        l1TlbMisses = latDict[component]['tlb-miss']
+        l1TlbMissLatSum += (latDict[component]['down_req_average_latency']*l1TlbMisses)
+        totl1TlbMisses += l1TlbMisses
+        for missType in ('local', 'remote'):
+            numMiss = getVal(latDict[component],
+                             '{}-TLBMiss-num'.format(missType))
+            avgMissLat = getVal(latDict[component],
+                                '{}-TLBMiss-latency'.format(missType))
+            toReturn['l1-tlb-{}-miss'.format(missType)] += numMiss
+            toReturn['l1-tlb-{}-miss-lat'.format(missType)
+                     ] += (avgMissLat*numMiss)
+    for missType in ('local', 'remote'):
+        missLatKey = 'l1-tlb-{}-miss-lat'.format(missType)
+        missNumKey = 'l1-tlb-{}-miss'.format(missType)
+        toReturn[missLatKey] = asCycles(
+            div(toReturn[missLatKey], toReturn[missNumKey]))
+    toReturn['l1-tlb-miss-lat'] = asCycles(div(l1TlbMissLatSum, totl1TlbMisses))
+    print(toReturn['l1-tlb-miss-lat'], useAlternateMissLatFormula(toReturn))
+    assert checkError(toReturn['l1-tlb-miss-lat'], useAlternateMissLatFormula(toReturn))
+    return toReturn
+
+
+def getL1TlbReqLat(lines):
+    metrics = ('req_average_latency', 'tlb-hit', 'tlb-miss', 'tlb-mshr-hit')
+    reqDict = dict()
+    regex = re.compile("^.*?L1.TLB.*?$", re.MULTILINE)
+    for line in filter(lambda x: reduce(lambda y, m: y or m in x, [False]+list(metrics)), regex.findall(lines)):
+        splitLine = line.split(',')
+        componentName = splitLine[1].strip()
+        metric = splitLine[2].strip()
+        val = float(splitLine[-1].strip())
+        addToDict(reqDict, componentName, metric, val)
+    toReturn = {'l1-tlb-req-lat': 0.0,
+                'l1-tlb-hit': 0,
+                'l1-tlb-miss': 0,
+                'l1-tlb-mshr-hit': 0}
+    allL1TlbReqs = 0
+    l1TlbLatSum = 0.0
+    for component in reqDict:
+        l1TlbReqs = sum(
+            map(lambda x: reqDict[component][x], ('tlb-hit', 'tlb-miss', 'tlb-mshr-hit')))
+        allL1TlbReqs += l1TlbReqs
+        for m in ('tlb-hit', 'tlb-miss', 'tlb-mshr-hit'):
+            toReturn['l1-{}'.format(m)] += reqDict[component][m]
+        l1TlbLatSum += (reqDict[component]['req_average_latency']*l1TlbReqs)
+    toReturn['l1-tlb-req-lat'] = asCycles(div(l1TlbLatSum, allL1TlbReqs))
+    return toReturn
+
+def getL1TlbAccessResults(lines):
+    raise Exception("Don't call this function, dk what it does!")
+    tlbDict = dict()
+    for line in lines.split('\n'):
+        try:
+            splitLine = line.split(',')
+            componentName = splitLine[1].strip()
+            metric = splitLine[2].strip()
+            val = splitLine[-1].strip()
+        except:
+            # traceback.print_exc()
+            continue
+        for missType in ('local', 'remote'):
+            if '{}-TLBHit-num'.format(missType) in line:
+                addToDict(tlbDict, componentName, '{}-miss'.format(missType), float(val))
+            if '{}-TLBHit-latency'.format(missType) in line:
+                addToDict(tlbDict, componentName, '{}-miss-lat'.format(missType), float(val))
+    toReturn = {'l1-tlb-{}-miss{}'.format(x, y): 0.0 for x, y in itertools.product(('local', 'remote'), ('', '-lat'))}
+    toReturn.update({'l1-tlb-chiplet-{}-{}-miss'.format(x, y): 0.0 for x, y in itertools.product(range(4), ('local', 'remote'))})
+    for component in tlbDict:
+        for missType in ('local', 'remote'):
+            missNumKey = '{}-miss'.format(missType)
+            missNum = getVal(tlbDict[component], missNumKey)
+            toReturn['l1-tlb-{}-miss'.format(missType)] += missNum
+            toReturn['l1-tlb-chiplet-{}-{}-miss'.format(getChipletFromComponent(componentName), missType)] += missNum
+            toReturn['l1-tlb-{}-miss-lat'.format(missType)] += getVal(tlbDict[component], '{}-miss-lat'.format(missType))*missNum
+    for missType in ('local', 'remote'):
+        missLatKey = 'l1-tlb-{}-miss-lat'.format(missType)
+        missNumKey = 'l1-tlb-{}-miss'.format(missType)
+        toReturn[missLatKey] = asCycles(div(toReturn[missLatKey], toReturn[missNumKey]))
+    return toReturn
+
+
+# pingu
+def getPerChipletL1MissStats(lines):
+    stats = dict()
+    locTypes = ['local', 'remote']
+    accTypes = ['TLBHit', 'TLBMiss', 'TLBMshrHit']
+    measureTypes = ['latency', 'num']
+    metrics = []
+    latencies = []
+    for locType in locTypes:
+        for accType in accTypes:
+            latencies.append(locType + '-' + accType)
+            for measureType in measureTypes:
+                metrics.append(locType + '-' + accType + '-' + measureType)
+
+    for line in lines.split('\n'):
+        try:
+            splitLine = line.split(',')
+            componentName = splitLine[1].strip()
+            metric = splitLine[2].strip()
+            val = splitLine[-1].strip()
+        except:
+            continue
+        for metric in metrics:
+            if metric in line:
+                addToDict(stats, componentName, metric, float(val))
+    toReturn = {}
+    for locType in locTypes:
+        for accType in accTypes:
+            for measureType in measureTypes:
+                for chiplet in ['0', '1', '2', '3']:
+                    toReturn[locType + '-' + accType + '-' + measureType+ '-' + chiplet] = 0.0
+    for component in stats:
+        chiplet = getChipletFromComponent(component)
+        for locType in locTypes:
+            for accType in accTypes:
+                latency = getVal(stats[component], locType + '-' + accType + '-' + 'latency')
+                num = getVal(stats[component], locType + '-' + accType + '-' + 'num')
+                toReturn[locType + '-' + accType + '-' + 'latency'+ '-' + str(chiplet)] += (latency * num)
+                toReturn[locType + '-' + accType + '-' + 'num'+ '-' + str(chiplet)] += num
+    for locType in locTypes:
+        for accType in accTypes:
+            total_latency = 0
+            total_num = 0
+            for chiplet in ['0', '1', '2', '3']:
+                try:
+                    latency = toReturn[locType + '-' + accType + '-' + 'latency'+ '-' + str(chiplet)]
+                    num = toReturn[locType + '-' + accType + '-' + 'num'+ '-' + str(chiplet)]
+                    toReturn[locType + '-' + accType + '-' + 'latency'+ '-' + str(chiplet)] = (latency / num)
+                    total_latency += latency
+                    total_num +=  num
+                except:
+                    toReturn[locType + '-' + accType + '-' + 'latency'+ '-' + str(chiplet)] = 0.0
+            try:
+                toReturn[locType+'-'+accType+'-'+'latency'+'-total'] = total_latency / total_num
+                toReturn[locType+'-'+accType+'-'+'num'+'-total'] = total_num
+            except:
+                toReturn[locType+'-'+accType+'-'+'latency'+'-total'] = 0.0
+                toReturn[locType+'-'+accType+'-'+'num'+'-total'] = total_num
+    return toReturn
