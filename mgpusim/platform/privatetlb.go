@@ -65,6 +65,7 @@ func (b *PrivateTLBPlatformBuilder) createGPUBuilder(
 	gpuBuilder.WithPageTable(gpuDriver.PageTable)
 	gpuBuilder.WithAlg(b.alg)
 	gpuBuilder.WithSchedulingPartition(b.partition)
+	gpuBuilder.WithWalkersPerChiplet(b.walkersPerChiplet)
 
 	b.setVisTracer(gpuDriver, gpuBuilder)
 	b.setTLBTracer(gpuBuilder)

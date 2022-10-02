@@ -1,0 +1,8 @@
+Please modify 3_gen_runners.py to change the configurations.
+
+1. To change the number of page walkers use the option -numWalkers <n>
+
+To run with magic configurations, where page walks are made local, please use 
+1. -platform-type privateh2tlb 
+2. -platform-type h2
+instead of privatetlb and xortlb respectively.

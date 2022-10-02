@@ -129,6 +129,8 @@ var useCustomHSL = flag.Bool("use-custom-hsl", false,
 	"Specify if to use custom HSL as defined in program")
 var customHSL = flag.Uint64("custom-hsl", 1,
 	"Specify the value of custom HSL directly to the builder")
+var numWalkers = flag.Int("num-walkers", 16,
+	"Number of walkers per chiplet")
 
 type verificationPreEnablingBenchmark interface {
 	benchmarks.Benchmark
@@ -974,6 +976,7 @@ func (r *Runner) buildTimingPlatform() {
 		b.WithSchedulingPartition(*schedulingPartition)
 		b.WithMemAllocatorType(*memAllocatorType)
 		b.WithLog2PageSize(*log2PageSize)
+		b.WithWalkersPerChiplet(*numWalkers)
 		r.Engine, r.GPUDriver = b.Build()
 	case "privateh2tlb":
 		b := platform.MakePrivateH2TLBPlatformBuilder()
@@ -1060,6 +1063,7 @@ func (r *Runner) buildTimingPlatform() {
 		b.WithAlg(*schedulingAlg)
 		b.WithSchedulingPartition(*schedulingPartition)
 		b.WithMemAllocatorType(*memAllocatorType)
+		b.WithWalkersPerChiplet(*numWalkers)
 		b.UseCoalescingTLBPort(*useCoalescingTLBPort)
 		b.UseCoalescingRTU(*useCoalescingRTU)
 		b.WithLog2PageSize(*log2PageSize)
@@ -1341,6 +1345,7 @@ func (r *Runner) buildTimingPlatform() {
 		b.WithSchedulingPartition(*schedulingPartition)
 		b.WithMemAllocatorType(*memAllocatorType)
 		b.WithCustomHSL(*customHSL)
+		b.WithWalkersPerChiplet(*numWalkers)
 		b.UseCoalescingTLBPort(*useCoalescingTLBPort)
 		b.UseCoalescingRTU(*useCoalescingRTU)
 		b.WithLog2PageSize(*log2PageSize)

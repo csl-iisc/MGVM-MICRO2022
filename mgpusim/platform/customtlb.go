@@ -91,6 +91,7 @@ func (b *CustomTLBGPUPlatformBuilder) createGPUBuilder(
 	gpuBuilder.WithPageTable(gpuDriver.PageTable)
 	gpuBuilder.WithAlg(b.alg)
 	gpuBuilder.WithSchedulingPartition(b.partition)
+	gpuBuilder.WithWalkersPerChiplet(b.walkersPerChiplet)
 	gpuBuilder.UseCoalescingTLBPort(b.useCoalescingTLBPort)
 	gpuBuilder.UseCoalescingRTU(b.useCoalescingRTU)
 	gpuBuilder.WithCustomHSL(b.customHSLpmdUnits)

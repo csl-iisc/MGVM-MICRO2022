@@ -65,6 +65,7 @@ type CommonBuilder struct {
 	log2CacheLineSize              uint64
 	log2MemoryBankInterleavingSize uint64
 	remoteTLBInterleavingSize      uint64
+	walkersPerChiplet              int
 	pageTable                      *device.PageTableImpl
 
 	enableISADebugging bool
@@ -122,6 +123,7 @@ func (b *CommonBuilder) SetDefaultCommonBuilderParams() {
 	b.log2CacheLineSize = 6
 	b.log2PageSize = 12
 	b.log2MemoryBankInterleavingSize = 12
+	b.walkersPerChiplet = 16
 
 	//this ought not to be in common
 	b.remoteTLBInterleavingSize = 512
@@ -252,6 +254,10 @@ func (b *CommonBuilder) UseCoalescingTLBPort(u bool) {
 
 func (b *CommonBuilder) UseCoalescingRTU(u bool) {
 	b.useCoalescingRTU = u
+}
+
+func (b *CommonBuilder) WithWalkersPerChiplet(w int) {
+	b.walkersPerChiplet = w
 }
 
 // CalculateMemoryParameters calculates
@@ -555,7 +561,7 @@ func (b *CommonBuilder) buildMMU(chiplet *Chiplet) {
 		//		WithTotMem(b.totalMem).
 		//		WithBankSize(b.memoryPerChiplet).
 		//		WithNumMemoryBankPerChiplet(uint64(b.numMemoryBankPerChiplet)).
-		WithMaxNumReqInFlight(16) // changed this here
+		WithMaxNumReqInFlight(b.walkersPerChiplet) // changed this here
 		//TODO: try increasing the number of walkers to 16 and see what happens
 	chiplet.MMU = mmuBuilder.Build(fmt.Sprintf("%s.MMU", chiplet.name))
 	chiplet.MMU.CommandProcessor = b.gpu.CommandProcessor.ToMMUs

@@ -40,6 +40,7 @@ type CommonPlatformBuilder struct {
 	useCoalescingRTU         bool
 	memAllocatorType         string
 	customHSLpmdUnits        uint64
+	walkersPerChiplet        int
 }
 
 // Makebuilder creates a EmuBuilder with default parameters.
@@ -54,6 +55,7 @@ func MakeCommonPlatformBuilder() CommonPlatformBuilder {
 		totalMem:                 8 * mem.GB,
 		bankSize:                 256 * mem.MB,
 		lowAddr:                  2 * mem.GB,
+		walkersPerChiplet:        16,
 	}
 	return b
 }
@@ -120,6 +122,10 @@ func (b *CommonPlatformBuilder) WithMemAllocatorType(allocatorType string) {
 
 func (b *CommonPlatformBuilder) WithCustomHSL(pmdUnits uint64) {
 	b.customHSLpmdUnits = pmdUnits
+}
+
+func (b *CommonPlatformBuilder) WithWalkersPerChiplet(n int) {
+	b.walkersPerChiplet = n
 }
 
 // // WithNumChiplets sets the number of chiplets in the mcm GPU.
