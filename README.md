@@ -4,7 +4,7 @@
 
 **Building and Running:**
 
-1. Go to mgpusim/samples/<benchmarkname>
+1. Go to mgpusim/samples/\<benchmarkname\>
 2. Run `go build` 
 3. Run the executable generated with appropriate options (please see scripts/3\_gen\_runners.py for various options).
 
