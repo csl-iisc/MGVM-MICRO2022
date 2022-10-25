@@ -1,9 +1,9 @@
 This repository contains the code for our MICRO 2022 paper:
 
 <a href=https://www.csa.iisc.ac.in/~arkapravab/papers/MICRO22_MGvm.pdf> **Designing Virtual Memory System of MCM GPUs** </a> <br>
-Pratheek B., Neha Jawalkar, Arkaprava Basu <br>
+Pratheek B.\*, Neha Jawalkar\*, Arkaprava Basu <br>
 In Proceedings of 55th ACM/IEEE International Symposium on Microarchitecture <br>
-
+\* *Both Pratheek and Neha contributed equally.*
 
 
 **Requirements:**
